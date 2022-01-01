@@ -1,12 +1,11 @@
 import socket
 
-
 # 创建一个socket
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # 主动去连接局域网内IP为192.168.27.238，端口为6688的进程
-ip = socket.gethostbyname(socket.gethostname())# 获取自身私网ip
-##print(ip)
-client.bind((ip,9999))
+ip = socket.gethostbyname(socket.gethostname())  # 获取自身私网ip
+# print(ip)
+##client.bind((ip, 9996))
 client.connect(('114.55.245.228', 9999))
 
 while True:
@@ -15,7 +14,7 @@ while True:
     # 对数据进行编码格式转换，不然报错
     data = data.encode('utf-8')
     # 如果输入quit则退出连接
-    if data == b'quit':
+    if data == b'quit' or data == b'final_quit':
         print('connect quit.')
         break
     else:
@@ -27,4 +26,5 @@ while True:
 
 # 发送数据告诉服务器退出连接
 client.sendall(b'quit')
+client.shutdown(2)
 client.close()
