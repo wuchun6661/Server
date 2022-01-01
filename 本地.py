@@ -5,7 +5,7 @@ client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # 主动去连接局域网内IP为192.168.27.238，端口为6688的进程
 ip = socket.gethostbyname(socket.gethostname())  # 获取自身私网ip
 # print(ip)
-##client.bind((ip, 9996))
+# client.bind((ip, 9996))
 client.connect(('114.55.245.228', 9999))
 
 while True:
