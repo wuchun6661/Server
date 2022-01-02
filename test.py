@@ -1,44 +1,57 @@
 import socket
 from threading import Thread, Lock
+from PySide6.QtWidgets import *
+from main_window import Ui_Form
 
 flag = 0
 flagLock = Lock()
 
 
-def receive():
+class State(QWidget):
+    def __init__(self, client):
+        super().__init__()
+        self.ui = Ui_Form()
+        self.client = client
+
+        self.ui.setupUi(self)  # 使.ui具备Ui_Form的内部成分
+        self.ui.button_send.clicked.connect(self.send)
+        self.ui.Edit_in.returnPressed.connect(self.send)
+        self.ui.button_clear.clicked.connect(self.clear)
+
+    def send(self):
+        text = self.ui.Edit_id.text() + " : " + self.ui.Edit_in.text()
+        self.ui.Edit_in.clear()
+        # 发送数据
+        self.client.sendall(text.encode('utf-8'))
+
+    def clear(self):
+        self.ui.Edit_out.clear()
+
+
+def receive(state):
     while True:
-        rec_data = client.recv(1024)
-        if flag == 1:
-            break
-        print(rec_data.decode('utf-8'))
+        try:
+            rec_data = state.client.recv(1024)
+            state.ui.Edit_out.append(rec_data.decode('utf-8'))
+            state.ui.Edit_out.ensureCursorVisible()
+        except:
+            pass
+        # print(rec_data.decode('utf-8'))
 
 
 # 创建一个socket
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# 主动去连接局域网内IP为192.168.27.238，端口为6688的进程
-ip = socket.gethostbyname(socket.gethostname())  # 获取自身私网ip
-client.connect(('114.55.245.228', 9999))
+client1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client1.connect(('114.55.245.228', 9999))
 
-thread = Thread(target=receive)
+app = QApplication()
+state1 = State(client1)
+state1.show()
+
+thread = Thread(target=receive, daemon=True, args=(state1,))
 thread.start()
 
-while True:
-    # 接受控制台的输入
-    data = input()
-    # 对数据进行编码格式转换，不然报错
-    data = data.encode('utf-8')
-    # 如果输入quit则退出连接
-    if data == b'quit' or data == b'final_quit':
-        print('connect quit.')
-        flag = 1
-        break
-    else:
-        # 发送数据
-        client.sendall(data)
-        # 接收服务端的反馈数据
+app.exec()
 
 # 发送数据告诉服务器退出连接
-client.sendall(b'quit')
-thread.join()
-# client.shutdown(2)
-client.close()
+client1.sendall(b'quit')
+client1.close()
