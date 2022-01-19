@@ -45,7 +45,7 @@ if __name__ == "__main__":
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     # server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server.bind(('172.19.85.143', 9999))
-    server.listen(5)
+    server.listen(10)
     add_list = []
     socket_list = []
     while True:
@@ -58,4 +58,3 @@ if __name__ == "__main__":
 
         client_thread = Thread(target=communicate, args=(connect1, host1, port1))  # 创建一个新的子线程
         client_thread.start()
-
